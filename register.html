@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Register for quick loans up to Ksh 500,000 with Mkopo Rahisi. Fast approval, direct to M-Pesa.">
+    <link rel="icon" type="image/png" href="IMG-20250323-WA0008.png" />
+    <title>Register - Mkopo Rahisi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mkopo Rahisi">
+    <link rel="apple-touch-icon" href="icons/icon.192.png">
+    <meta name="theme-color" content="#2563eb">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .login-container {
+            max-width: 500px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            flex: 1;
+        }
+
+        .logo {
+            text-align: center;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .title {
+            color: var(--dark);
+            font-size: 1.3rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            text-align:center; 
+            color:#64748b; 
+            margin-bottom: 1.2rem;
+            font-size: 0.85rem;
+        }
+
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            margin-top: 1.2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.85rem;
+        }
+
+        input, select {
+            padding: 0.8rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .phone-prefix {
+            padding: 0 0.8rem;
+            background: #e2e8f0;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.85rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .login-btn {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            margin-top: 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .info-box {
+            margin-top: 1.2rem;
+            background: rgba(241, 245, 249, 0.7);
+            border-left: 4px solid var(--primary);
+            padding: 0.8rem;
+            border-radius: 8px;
+        }
+
+        .info-box p:first-child {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box p {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .terms {
+            margin-top: 1.2rem; 
+            font-size: 0.8rem; 
+            text-align:center; 
+            color: #64748b;
+        }
+
+        .terms a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .terms a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.2rem;
+            background: var(--dark);
+            color: white;
+            margin-top: auto;
+            font-size: 0.8rem;
+        }
+
+        /* Loader Styles */
+        .overlay-spinner {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .spinner-beautiful {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(37, 99, 235, 0.2);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast Styles */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--error);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 9999;
+            max-width: 90%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* PWA Install Button */
+        #installButton {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 999;
+            width: auto;
+            min-width: 240px;
+            white-space: nowrap;
+            transition: transform 0.3s ease;
+            animation: pulse-blue 2s infinite;
+        }
+
+        #installButton.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #installButton i {
+            font-size: 1rem;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 0.8rem;
+                padding: 1.2rem;
+                border-radius: 12px;
+            }
+            
+            .logo {
+                font-size: 1.4rem;
+                gap: 6px;
+            }
+            
+            .title {
+                font-size: 1.2rem;
+            }
+            
+            input, select {
+                padding: 0.7rem;
+                font-size: 0.85rem;
+            }
+            
+            .login-btn {
+                padding: 0.9rem;
+                font-size: 0.95rem;
+            }
+            
+            #installButton {
+                font-size: 0.8rem;
+                padding: 10px 15px;
+                min-width: 90%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body class="login-body">
+    <div class="login-container">
+        <div class="logo">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span>Mkopo Rahisi</span>
+        </div>
+        
+        <h2 class="title">Find Your Loan Eligibility</h2>
+        <p class="subtitle">We offer loans from Ksh 2,000 to 500,000 disbursed directly to M-Pesa</p>
+
+        <form class="login-form" id="registerForm">
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input type="text" id="name" name="name" placeholder="Enter your full name" required />
+            </div>
+
+            <div class="form-group">
+                <label for="county">Select County</label>
+                <select id="county" name="county" required>
+                    <option value="">--Select County--</option>
+                    <option value="Mombasa">Mombasa</option>
+                    <option value="Kwale">Kwale</option>
+                    <option value="Kilifi">Kilifi</option>
+                    <option value="Tana River">Tana River</option>
+                    <option value="Lamu">Lamu</option>
+                    <option value="Taita Taveta">Taita Taveta</option>
+                    <option value="Garissa">Garissa</option>
+                    <option value="Wajir">Wajir</option>
+                    <option value="Mandera">Mandera</option>
+                    <option value="Marsabit">Marsabit</option>
+                    <option value="Isiolo">Isiolo</option>
+                    <option value="Meru">Meru</option>
+                    <option value="Tharaka Nithi">Tharaka Nithi</option>
+                    <option value="Embu">Embu</option>
+                    <option value="Kitui">Kitui</option>
+                    <option value="Machakos">Machakos</option>
+                    <option value="Makueni">Makueni</option>
+                    <option value="Nyandarua">Nyandarua</option>
+                    <option value="Nyeri">Nyeri</option>
+                    <option value="Kirinyaga">Kirinyaga</option>
+                    <option value="Murang'a">Murang'a</option>
+                    <option value="Kiambu">Kiambu</option>
+                    <option value="Turkana">Turkana</option>
+                    <option value="West Pokot">West Pokot</option>
+                    <option value="Samburu">Samburu</option>
+                    <option value="Trans Nzoia">Trans Nzoia</option>
+                    <option value="Uasin Gishu">Uasin Gishu</option>
+                    <option value="Elgeyo Marakwet">Elgeyo Marakwet</option>
+                    <option value="Nandi">Nandi</option>
+                    <option value="Baringo">Baringo</option>
+                    <option value="Laikipia">Laikipia</option>
+                    <option value="Nakuru">Nakuru</option>
+                    <option value="Narok">Narok</option>
+                    <option value="Kajiado">Kajiado</option>
+                    <option value="Kericho">Kericho</option>
+                    <option value="Bomet">Bomet</option>
+                    <option value="Kakamega">Kakamega</option>
+                    <option value="Vihiga">Vihiga</option>
+                    <option value="Bungoma">Bungoma</option>
+                    <option value="Busia">Busia</option>
+                    <option value="Siaya">Siaya</option>
+                    <option value="Kisumu">Kisumu</option>
+                    <option value="Homa Bay">Homa Bay</option>
+                    <option value="Migori">Migori</option>
+                    <option value="Kisii">Kisii</option>
+                    <option value="Nyamira">Nyamira</option>
+                    <option value="Nairobi">Nairobi</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="mpesa">M-Pesa Number</label>
+                <div class="phone-input-container">
+                    <span class="phone-prefix">+254</span>
+                    <input type="text" id="mpesa" name="mpesa" placeholder="7XXXXXXXX or 1XXXXXXXX" required 
+                           pattern="[0-9]{9,10}" 
+                           title="Enter a valid Kenyan phone number (7XXXXXXXX, 1XXXXXXXX, or 01XXXXXXXX)" 
+                           inputmode="numeric" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id">National ID Number</label>
+                <input type="text" id="id" name="id" placeholder="Enter your ID number" required />
+            </div>
+
+            <div class="form-group">
+                <label for="gender">Gender</label>
+                <select id="gender" name="gender" required>
+                    <option value="">--Select Gender--</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dob">Date of Birth</label>
+                <input type="date" id="dob" name="dob" required />
+            </div>
+
+            <div class="form-group">
+                <label for="marital">Marital Status</label>
+                <select id="marital" name="marital" required>
+                    <option value="">--Select Marital Status--</option>
+                    <option value="Single">Single</option>
+                    <option value="Married">Married</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter password (min 6 characters)" required minlength="6" />
+            </div>
+
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Confirm password" required minlength="6" />
+            </div>
+
+            <button type="submit" class="login-btn" id="registerBtn">
+                <i class="fas fa-arrow-right"></i> Continue to Eligibility
+            </button>
+        </form>
+
+        <div class="info-box">
+            <p>Why Choose Mkopo Rahisi?</p>
+            <p>✓ No CRB Check ✓ No Guarantors ✓ No Paperwork</p>
+            <p>Loans disbursed directly to your M-Pesa account within minutes</p>
+        </div>
+
+        <p class="terms">
+            By submitting you confirm that you accept the <a href="#">Terms and Conditions</a>
+            and <a href="#">Privacy Policy</a>.
+        </p>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Mkopo Rahisi. Licensed by CBK. All rights reserved.</p>
+    </footer>
+
+    <!-- PWA Install Button -->
+    <button id="installButton" style="display: none;">
+        <i class="fas fa-download"></i> Install App to Get Faster Access
+    </button>
+
+    <div class="overlay-spinner" id="loadingOverlay" style="display:none;">
+        <div class="spinner-beautiful"></div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Firebase configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyCASu52RKh0cUP74lNVONDxkH0IKC7B9Ak",
+                authDomain: "mkopo-rahisi-2dee5.firebaseapp.com",
+                projectId: "mkopo-rahisi-2dee5",
+                storageBucket: "mkopo-rahisi-2dee5.firebasestorage.app",
+                messagingSenderId: "463971994215",
+                appId: "1:463971994215:web:2d3ef1001cee2b201be2c2",
+                measurementId: "G-BRKFJJR3BM"
+            };
+
+            // Initialize Firebase
+            let app, db, auth, analytics;
+            
+            try {
+                app = firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                db = firebase.firestore();
+                analytics = firebase.analytics();
+                
+                console.log('Firebase initialized successfully');
+            } catch (error) {
+                console.error('Firebase initialization error:', error);
+                showToast('Initialization error. Please refresh the page.');
+                return;
+            }
+
+            // Show toast message
+            function showToast(message, isError = true) {
+                const toast = document.getElementById('toast');
+                toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+                toast.style.backgroundColor = isError ? 'var(--error)' : 'var(--success)';
+                toast.classList.add("show");
+                setTimeout(() => toast.classList.remove("show"), 3000);
+            }
+
+            // Format phone number to email format for Firebase Auth
+            function formatPhoneForAuth(phone) {
+                // Remove all non-digit characters
+                phone = phone.replace(/\D/g, '');
+                
+                // Handle all Kenyan phone number formats:
+                if (phone.startsWith('254')) {
+                    phone = phone.substring(3); // Remove 254 prefix
+                } else if (phone.startsWith('0')) {
+                    phone = phone.substring(1); // Remove leading 0
+                }
+                
+                // Ensure we have exactly 9 digits
+                if (phone.length !== 9) {
+                    throw new Error("Invalid phone number length");
+                }
+                
+                // Return as email format
+                return `${phone}@mkoporahisi.com`;
+            }
+
+            // Get clean 9-digit phone number for storage
+            function getCleanPhoneNumber(phone) {
+                // Remove all non-digit characters
+                phone = phone.replace(/\D/g, '');
+                
+                // Handle all Kenyan phone number formats:
+                if (phone.startsWith('254')) {
+                    return phone.substring(3); // Remove 254 prefix
+                } else if (phone.startsWith('0')) {
+                    return phone.substring(1); // Remove leading 0
+                }
+                
+                // If it's already 9 digits (7... or 1...)
+                return phone;
+            }
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    registerServiceWorker();
+                });
+            }
+
+            async function registerServiceWorker() {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('ServiceWorker registration successful');
+
+                    // Check if PWA is already installed
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        const installButton = document.getElementById('installButton');
+                        
+                        // Only show the button if not already installed
+                        if (!window.matchMedia('(display-mode: standalone)').matches) {
+                            installButton.style.display = 'flex';
+                            setTimeout(() => installButton.classList.add('show'), 500);
+                            
+                            installButton.addEventListener('click', () => {
+                                e.prompt();
+                                installButton.style.display = 'none';
+                            });
+                            
+                            e.userChoice.then((choiceResult) => {
+                                if (choiceResult.outcome === 'accepted') {
+                                    console.log('User accepted install prompt');
+                                    if (analytics) {
+                                        analytics.logEvent('pwa_install_accepted');
+                                    }
+                                } else {
+                                    console.log('User dismissed install prompt');
+                                    if (analytics) {
+                                        analytics.logEvent('pwa_install_declined');
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } catch (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                }
+            }
+
+            // Check if app is launched as PWA
+            window.addEventListener('appinstalled', () => {
+                console.log('PWA was installed');
+                const installButton = document.getElementById('installButton');
+                if (installButton) {
+                    installButton.style.display = 'none';
+                }
+                if (analytics) {
+                    analytics.logEvent('pwa_installed');
+                }
+            });
+
+            // Handle phone number input formatting
+            document.getElementById('mpesa').addEventListener('input', (e) => {
+                // Remove any non-digit characters
+                let value = e.target.value.replace(/\D/g, '');
+                
+                // Handle all Kenyan formats: 7..., 07..., 1..., 01...
+                if (value.startsWith('0')) {
+                    // Keep the 0 but limit to 10 digits (0 + 9 digits)
+                    value = value.substring(0, 10);
+                } else {
+                    // For numbers starting with 1, 7, or 254, limit to 9 digits
+                    value = value.substring(0, 9);
+                }
+                
+                e.target.value = value;
+            });
+
+            // Handle form submission
+            document.getElementById('registerForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                const form = e.target;
+                const mpesaInput = document.getElementById('mpesa');
+                const rawMpesa = mpesaInput.value.trim();
+                const password = document.getElementById('password').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                try {
+                    // First check if Firebase auth is available
+                    if (!auth) {
+                        throw new Error('Authentication service not available');
+                    }
+
+                    // Get clean 9-digit phone number
+                    const cleanMpesa = getCleanPhoneNumber(rawMpesa);
+                    
+                    // Validate phone number format
+                    if (!/^[0-9]{9}$/.test(cleanMpesa)) {
+                        showToast("Please enter a valid Kenyan phone number (7XXXXXXXX, 1XXXXXXXX, or 01XXXXXXXX)");
+                        return;
+                    }
+
+                    if (password !== confirmPassword) {
+                        showToast("Passwords do not match.");
+                        return;
+                    }
+
+                    if (password.length < 6) {
+                        showToast("Password must be at least 6 characters");
+                        return;
+                    }
+
+                    if (form.checkValidity()) {
+                        document.getElementById('loadingOverlay').style.display = 'flex';
+                        document.getElementById('registerBtn').disabled = true;
+
+                        // Create user with Firebase Auth
+                        const email = formatPhoneForAuth(cleanMpesa);
+                        console.log("Registering with email:", email);
+                        
+                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                        const user = userCredential.user;
+
+                        // Save additional user data to Firestore
+                        const userData = {
+                            name: document.getElementById('name').value,
+                            county: document.getElementById('county').value,
+                            mpesa: cleanMpesa, // Store just the 9-digit number
+                            id: document.getElementById('id').value,
+                            gender: document.getElementById('gender').value,
+                            dob: document.getElementById('dob').value,
+                            marital: document.getElementById('marital').value,
+                            yere: "null",
+                            uid: user.uid,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        };
+
+                        // Save to Firestore in 'user-data' collection
+                        await db.collection('user-data').doc(cleanMpesa).set(userData);
+                        
+                        // Log successful registration
+                        if (analytics) {
+                            analytics.logEvent('sign_up', { method: 'phone' });
+                        }
+
+                        // Store user data in sessionStorage
+                        sessionStorage.setItem('mpesaNumber', cleanMpesa);
+                        sessionStorage.setItem('accountName', userData.name);
+                        sessionStorage.setItem('user', JSON.stringify({
+                            phone: cleanMpesa,
+                            uid: user.uid
+                        }));
+
+                        showToast("Registration successful!", false);
+                        
+                        // Redirect to eligibility page
+                        window.location.href = 'eligibility.html';
+                    } else {
+                        form.reportValidity();
+                    }
+                } catch (error) {
+                    console.error("Registration error:", error);
+                    if (analytics) {
+                        analytics.logEvent('sign_up_failed', { error: error.code });
+                    }
+
+                    // Handle specific Firebase errors
+                    if (error.code === 'auth/email-already-in-use') {
+                        showToast("This phone number is already registered");
+                    } else if (error.code === 'auth/weak-password') {
+                        showToast("Password should be at least 6 characters");
+                    } else if (error.code === 'auth/invalid-email') {
+                        showToast("Invalid phone number format");
+                    } else if (error.message === 'Authentication service not available') {
+                        showToast("Authentication service unavailable. Please refresh the page.");
+                    } else {
+                        showToast(`Registration failed: ${error.message}`);
+                    }
+                } finally {
+                    document.getElementById('loadingOverlay').style.display = 'none';
+                    document.getElementById('registerBtn').disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/png" href="IMG-20250323-WA0008.png">
+    <title>Loan Amount Selection | Mkopo Rahisi</title>
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --warning: #dd6b20;
+            --danger: #e53e3e;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            --transition: all 0.2s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0.6rem 0;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .welcome-message {
+            background: white;
+            padding: 0.8rem 1rem;
+            margin: 0.5rem 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            font-size: 0.9rem;
+            text-align: center;
+            color: var(--dark);
+        }
+
+        .welcome-message strong {
+            color: var(--primary);
+        }
+
+        .loan-container {
+            max-width: 900px;
+            margin: 0.5rem auto 1rem;
+            padding: 1.2rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .header p.subtitle {
+            color: #64748b;
+            font-size: 0.9rem;
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.8rem;
+            margin: 1.2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.75rem;
+            background: var(--light);
+            padding: 0.5rem 0.8rem;
+            border-radius: 50px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .trust-badge i {
+            color: var(--success);
+            font-size: 0.9rem;
+        }
+
+        .intro-card {
+            background-color: rgba(240, 245, 255, 0.8);
+            border-left: 3px solid var(--primary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.2rem;
+        }
+
+        .intro-card p {
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        .intro-card p strong {
+            color: var(--primary);
+        }
+
+        .amounts {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin: 1.2rem 0;
+        }
+
+        .amount-button {
+            padding: 1rem 0.5rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            background-color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .amount-button:hover {
+            border-color: var(--primary);
+            box-shadow: var(--box-shadow);
+        }
+
+        .amount-button.active {
+            border-color: var(--primary);
+            background-color: rgba(240, 245, 255, 0.8);
+        }
+
+        .amount-button.active:after {
+            content: "✓";
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+
+        .amount-button strong {
+            font-size: 1rem;
+            color: var(--primary);
+            display: block;
+            margin-bottom: 0.3rem;
+            font-weight: 600;
+        }
+
+        .amount-button .loan-limit {
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+
+        .note-box {
+            margin-top: 1.2rem;
+            background-color: rgba(255, 250, 240, 0.8);
+            border-left: 3px solid var(--warning);
+            padding: 0.8rem;
+            border-radius: var(--border-radius);
+            display: flex;
+            gap: 0.8rem;
+        }
+
+        .note-box i {
+            color: var(--warning);
+            font-size: 1rem;
+            flex-shrink: 0;
+            margin-top: 0.1rem;
+        }
+
+        .note-box p {
+            color: var(--dark);
+            font-size: 0.85rem;
+        }
+
+        .warning-message {
+            display: block;
+            color: var(--danger);
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            font-weight: 600;
+            background: rgba(255, 245, 245, 0.8);
+            padding: 0.3rem;
+            border-radius: 4px;
+        }
+
+        .proceed-section {
+            margin-top: 1.5rem;
+            text-align: center;
+        }
+
+        .proceed-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .proceed-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .proceed-button:active {
+            transform: translateY(0);
+        }
+
+        .proceed-button:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-spinner {
+            display: none;
+            margin-left: 8px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--danger);
+            color: white;
+            text-align: center;
+            border-radius: var(--border-radius);
+            padding: 0.8rem;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            font-size: 0.85rem;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s, transform 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toast.show {
+            visibility: visible;
+            opacity: 1;
+            transform: translateX(-50%) translateY(-5px);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #64748b;
+            font-size: 0.75rem;
+            padding: 1rem 0;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.75rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        .copyright {
+            margin-top: 0.3rem;
+        }
+
+        /* PWA Install Button */
+        #installButton {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 16px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 999;
+            width: auto;
+            min-width: 220px;
+            white-space: nowrap;
+            transition: transform 0.3s ease;
+            animation: pulse-blue 2s infinite;
+        }
+
+        #installButton.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #installButton i {
+            font-size: 0.9rem;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        /* Loader for auth check */
+        .auth-loader {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .auth-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(37, 99, 235, 0.2);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @media (max-width: 480px) {
+            .amounts {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 0.6rem;
+            }
+            
+            .amount-button {
+                padding: 0.8rem 0.3rem;
+            }
+            
+            .amount-button strong {
+                font-size: 0.9rem;
+            }
+            
+            .amount-button .loan-limit {
+                font-size: 0.75rem;
+            }
+            
+            .trust-badge {
+                font-size: 0.7rem;
+                padding: 0.4rem 0.6rem;
+            }
+            
+            .proceed-button {
+                width: 100%;
+                padding: 0.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body class="login-body">
+    <div class="header-banner">
+        Fast and secure loan processing • 100% online application
+    </div>
+
+    <div class="welcome-message" id="welcomeMessage">
+        Welcome back! Choose your preferred loan option below
+    </div>
+
+    <div class="loan-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Mkopo Rahisi</span>
+            </div>
+            <p class="subtitle">Select your preferred savings plan to see your corresponding loan limit</p>
+        </div>
+
+        <div class="trust-badges">
+            <div class="trust-badge">
+                <i class="fas fa-lock"></i>
+                <span>Secure</span>
+            </div>
+            <div class="trust-badge">
+                <i class="fas fa-bolt"></i>
+                <span>Fast</span>
+            </div>
+            <div class="trust-badge">
+                <i class="fas fa-star"></i>
+                <span>Trusted</span>
+            </div>
+        </div>
+
+        <div class="intro-card">
+            <p>Higher savings amounts qualify you for larger loans. Your selected amount will be automatically deducted from your loan disbursement.</p>
+        </div>
+
+        <div class="amounts">
+            <div class="amount-button">
+                <strong>Ksh 150</strong>
+                <span class="loan-limit">Loan limit: Ksh 2,560</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 190</strong>
+                <span class="loan-limit">Loan limit: Ksh 4,230</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 250</strong>
+                <span class="loan-limit">Loan limit: Ksh 6,760</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 320</strong>
+                <span class="loan-limit">Loan limit: Ksh 9,030</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 460</strong>
+                <span class="loan-limit">Loan limit: Ksh 10,660</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 960</strong>
+                <span class="loan-limit">Loan limit: Ksh 20,500</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 1,260</strong>
+                <span class="loan-limit">Loan limit: Ksh 25,500</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 1,550</strong>
+                <span class="loan-limit">Loan limit: Ksh 30,500</span>
+            </div>
+            <div class="amount-button">
+                <strong>Ksh 2,050</strong>
+                <span class="loan-limit">Loan limit: Ksh 34,500</span>
+                <span id="warning-span" class="warning-message" style="display: none;">Only existing members allowed</span>
+            </div>
+        </div>
+
+        <div class="note-box">
+            <i class="fas fa-lightbulb"></i>
+            <p>Repayment periods range from 14-30 days depending on loan amount. Early repayment improves your credit score.</p>
+        </div>
+
+        <div class="proceed-section">
+            <button class="proceed-button">
+                <span class="btn-text">Continue Application</span>
+                <span class="btn-spinner"><i class="fas fa-spinner"></i></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-links">
+            <a href="#">How It Works</a>
+            <a href="#">FAQs</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <div class="copyright">
+            © 2025 Mkopo Rahisi. Licensed by CBK. All rights reserved.
+        </div>
+    </div>
+
+    <!-- PWA Install Button -->
+    <button id="installButton" style="display: none;">
+        <i class="fas fa-download"></i> Install App for Faster Access
+    </button>
+
+    <div id="toast" class="toast"></div>
+    
+    <div class="auth-loader" id="authLoader">
+        <div class="auth-spinner"></div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCASu52RKh0cUP74lNVONDxkH0IKC7B9Ak",
+            authDomain: "mkopo-rahisi-2dee5.firebaseapp.com",
+            projectId: "mkopo-rahisi-2dee5",
+            storageBucket: "mkopo-rahisi-2dee5.firebasestorage.app",
+            messagingSenderId: "463971994215",
+            appId: "1:463971994215:web:2d3ef1001cee2b201be2c2",
+            measurementId: "G-BRKFJJR3BM"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const analytics = firebase.analytics();
+
+        // Show toast message
+        function showToast(message, isError = true) {
+            const toast = document.getElementById('toast');
+            toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+            toast.style.backgroundColor = isError ? 'var(--danger)' : 'var(--success)';
+            toast.classList.add("show");
+            setTimeout(() => toast.classList.remove("show"), 3000);
+        }
+
+        // Check authentication state
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('authLoader').style.display = 'flex';
+            
+            auth.onAuthStateChanged(async user => {
+                document.getElementById('authLoader').style.display = 'none';
+                
+                if (!user) {
+                    // User not logged in, redirect to login
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                try {
+                    // Get user's first name from Firestore (as stored by register.html)
+                    const mpesaNumber = sessionStorage.getItem('mpesaNumber');
+                    if (mpesaNumber) {
+                        const userDoc = await db.collection('user-data').doc(mpesaNumber).get();
+                        
+                        if (userDoc.exists) {
+                            const userData = userDoc.data();
+                            if (userData && userData.name) {
+                                const firstName = userData.name.split(' ')[0];
+                                document.getElementById('welcomeMessage').innerHTML = 
+                                    `Welcome back, <strong>${firstName}</strong>! Choose your preferred loan option below`;
+                            }
+                        }
+                    }
+                    
+                    // Initialize the page functionality
+                    initPage();
+                } catch (error) {
+                    console.error("Error fetching user data:", error);
+                    showToast("Error loading user information");
+                }
+            });
+        });
+
+        // Initialize page functionality
+        function initPage() {
+            // Variable to store the selected amount and loan limit
+            let selectedAmount = null;
+            let selectedLoanLimit = null;
+
+            // Function to handle amount selection and session storage
+            function handleSelection(amount, loanLimit) {
+                // Remove active class from all buttons
+                document.querySelectorAll('.amount-button').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Add active class to clicked button
+                event.currentTarget.classList.add('active');
+
+                // Set the selected amount and loan limit
+                selectedAmount = amount;
+                selectedLoanLimit = loanLimit;
+
+                // Check if the last option is selected (Ksh 2050)
+                if (amount === 'Ksh 2,050') {
+                    // Show the warning message
+                    const warningSpan = document.getElementById('warning-span');
+                    warningSpan.style.display = 'block';
+                } else {
+                    // Hide any warning message
+                    const warningSpan = document.getElementById('warning-span');
+                    warningSpan.style.display = 'none';
+                }
+            }
+
+            // Function to handle proceed button click
+            function handleProceed() {
+                if (selectedAmount === 'Ksh 2,050') {
+                    showToast('Only existing members can select this option');
+                    return;
+                }
+                
+                if (selectedAmount && selectedLoanLimit) {
+                    // Save the selected amount and loan limit in sessionStorage
+                    sessionStorage.setItem('selectedAmount', selectedAmount);
+                    sessionStorage.setItem('loanLimit', selectedLoanLimit);
+
+                    const button = document.querySelector('.proceed-button');
+                    const btnText = button.querySelector('.btn-text');
+                    const spinner = button.querySelector('.btn-spinner');
+
+                    btnText.textContent = 'Processing...';
+                    spinner.style.display = 'inline-block';
+                    button.disabled = true;
+                    
+                    // Simulate processing delay
+                    setTimeout(() => {
+                        window.location.href = 'summary.html';
+                        spinner.style.display = 'none';
+                    }, 1500);
+
+                } else {
+                    showToast('Please select a savings amount to continue');
+                }
+            }
+
+            // Attach event listeners to the amount buttons
+            const amountButtons = document.querySelectorAll('.amount-button');
+            amountButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Extract the amount and loan limit from button text
+                    const amount = this.querySelector('strong').textContent;
+                    const loanLimit = this.querySelector('.loan-limit').textContent.replace('Loan limit: ', '').trim();
+
+                    // Call handleSelection with extracted values
+                    handleSelection(amount, loanLimit);
+                });
+            });
+
+            // Proceed button click listener
+            const proceedButton = document.querySelector('.proceed-button');
+            proceedButton.addEventListener('click', handleProceed);
+
+            // Register Service Worker for PWA
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    registerServiceWorker();
+                });
+            }
+
+            async function registerServiceWorker() {
+                try {
+                    const registration = await navigator.serviceWorker.register('/sw.js');
+                    console.log('ServiceWorker registration successful');
+
+                    // Check if PWA is already installed
+                    window.addEventListener('beforeinstallprompt', (e) => {
+                        e.preventDefault();
+                        const installButton = document.getElementById('installButton');
+                        
+                        // Only show the button if not already installed
+                        if (!window.matchMedia('(display-mode: standalone)').matches) {
+                            installButton.style.display = 'flex';
+                            setTimeout(() => installButton.classList.add('show'), 500);
+                            
+                            installButton.addEventListener('click', () => {
+                                e.prompt();
+                                installButton.style.display = 'none';
+                            });
+                            
+                            e.userChoice.then((choiceResult) => {
+                                if (choiceResult.outcome === 'accepted') {
+                                    console.log('User accepted install prompt');
+                                    analytics.logEvent('pwa_install_accepted');
+                                } else {
+                                    console.log('User dismissed install prompt');
+                                    analytics.logEvent('pwa_install_declined');
+                                }
+                            });
+                        }
+                    });
+                } catch (err) {
+                    console.log('ServiceWorker registration failed: ', err);
+                }
+            }
+
+            // Check if app is launched as PWA
+            window.addEventListener('appinstalled', () => {
+                console.log('PWA was installed');
+                const installButton = document.getElementById('installButton');
+                if (installButton) {
+                    installButton.style.display = 'none';
+                }
+                analytics.logEvent('pwa_installed');
+            });
+        }
+    </script>
+</body>
+</html>

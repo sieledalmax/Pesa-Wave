@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Check your loan eligibility with Mkopo Rahisi. Get up to Ksh 500,000 disbursed directly to M-Pesa.">
+    <link rel="icon" type="image/png" href="IMG-20250323-WA0008.png" />
+    <title>Eligibility - Mkopo Rahisi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mkopo Rahisi">
+    <link rel="apple-touch-icon" href="icons/icon.192.png">
+    <meta name="theme-color" content="#2563eb">
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --warning: #dd6b20;
+            --danger: #e53e3e;
+            --border-radius: 12px;
+            --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .eligibility-container {
+            max-width: 500px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            flex: 1;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 1.2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .logo i {
+            color: var(--accent);
+        }
+
+        .subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 1.2rem;
+            font-size: 0.9rem;
+        }
+
+        .eligibility-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        label {
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 0.9rem;
+        }
+
+        input, select {
+            padding: 0.9rem;
+            border: 1px solid #e2e8f0;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+            background: white;
+        }
+
+        .phone-input-container {
+            display: flex;
+            align-items: center;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .phone-prefix {
+            padding: 0 0.8rem;
+            background: #e2e8f0;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 0.85rem;
+            height: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .section-title {
+            color: var(--primary);
+            margin: 1.2rem 0 0.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .section-title span {
+            color: var(--danger);
+        }
+
+        .submit-btn {
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-text {
+            transition: all 0.3s ease;
+        }
+
+        .btn-spinner {
+            display: none;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            margin-top: 1.2rem;
+            background: rgba(240, 245, 255, 0.8);
+            border-left: 4px solid var(--primary);
+            padding: 1rem;
+            border-radius: var(--border-radius);
+        }
+
+        .info-box p:first-child {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .info-box p {
+            font-size: 0.85rem;
+        }
+
+        .terms-notice {
+            margin-top: 1.2rem;
+            font-size: 0.8rem;
+            text-align: center;
+            color: #64748b;
+        }
+
+        .terms-notice a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .terms-notice a:hover {
+            text-decoration: underline;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 1.2rem;
+            background: var(--dark);
+            color: white;
+            margin-top: auto;
+            font-size: 0.8rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.8rem;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Toast Styles */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--danger);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(229, 62, 62, 0.3);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 9999;
+            max-width: 90%;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* PWA Install Button */
+        #installButton {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 999;
+            width: auto;
+            min-width: 240px;
+            white-space: nowrap;
+            transition: transform 0.3s ease;
+            animation: pulse-blue 2s infinite;
+        }
+
+        #installButton.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #installButton i {
+            font-size: 1rem;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        @media (max-width: 480px) {
+            .eligibility-container {
+                margin: 0.8rem;
+                padding: 1.2rem;
+                border-radius: 12px;
+            }
+            
+            .logo {
+                font-size: 1.4rem;
+                gap: 6px;
+            }
+            
+            input, select {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            .submit-btn {
+                padding: 0.9rem;
+                font-size: 0.95rem;
+            }
+            
+            #installButton {
+                font-size: 0.8rem;
+                padding: 10px 15px;
+                min-width: 90%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+
+<body class="login-body">
+    <div class="eligibility-container">
+        <div class="header">
+            <div class="logo">
+                <i class="fas fa-hand-holding-usd"></i>
+                <span>Mkopo Rahisi</span>
+            </div>
+            <p class="subtitle">We offer loans from Ksh 2,000 to 500,000 disbursed directly to M-Pesa</p>
+        </div>
+
+        <form class="eligibility-form" id="eligibilityForm">
+            <div class="form-group">
+                <label for="education">Level of Education</label>
+                <select id="education" name="education" required>
+                    <option value="">--Select Education Level--</option>
+                    <option value="Secondary">Secondary</option>
+                    <option value="Diploma and Cert">Diploma and Cert</option>
+                    <option value="Bachelor Degree">Bachelor Degree</option>
+                    <option value="Master Degree">Master Degree</option>
+                    <option value="PhD">PhD</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="employment">Employment Status</label>
+                <select id="employment" name="employment" required>
+                    <option value="">--Select Employment Status--</option>
+                    <option value="Student">Student</option>
+                    <option value="Working">Working</option>
+                    <option value="Unemployed">Unemployed</option>
+                    <option value="Self Employed">Self Employed</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="income">Monthly Income</label>
+                <select id="income" name="income" required>
+                    <option value="">--Select Income Bracket--</option>
+                    <option value="0-1000">0 - 1000</option>
+                    <option value="10000-25000">10,000 - 25,000</option>
+                    <option value="25000-35000">25,000 - 35,000</option>
+                    <option value="35000-45000">35,000 - 45,000</option>
+                    <option value="50000+">50,000+</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="loanPurpose">Loan Purpose</label>
+                <select id="loanPurpose" name="loanPurpose" required>
+                    <option value="">--Select Loan Purpose--</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Business">Business</option>
+                    <option value="Emergency">Emergency</option>
+                    <option value="Student">Student</option>
+                </select>
+            </div>
+
+            <h3 class="section-title">Referee Details <span>#</span></h3>
+
+            <div class="form-group">
+                <label for="refName">Referee Name</label>
+                <input type="text" id="refName" name="refName" placeholder="Enter referee full name" required />
+            </div>
+
+            <div class="form-group">
+                <label for="refPhone">Referee Phone Number</label>
+                <div class="phone-input-container">
+                    <span class="phone-prefix">+254</span>
+                    <input type="text" id="refPhone" name="refPhone" placeholder="7XXXXXXXX or 1XXXXXXXX" required 
+                           pattern="[0-9]{9}" 
+                           title="Enter a valid Kenyan phone number (7XXXXXXXX, 1XXXXXXXX, or 01XXXXXXXX)" 
+                           inputmode="numeric" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="relationship">Relationship</label>
+                <select id="relationship" name="relationship" required>
+                    <option value="">--Select Relationship--</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Brother">Brother</option>
+                    <option value="Sister">Sister</option>
+                    <option value="Friend">Friend</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submitBtn">
+                <span class="btn-text">Submit Details</span>
+                <span class="btn-spinner"><i class="fas fa-spinner"></i></span>
+            </button>
+        </form>
+
+        <div class="info-box">
+            <p>No CRB Check, No Guarantors, No Paperwork</p>
+            <p>Loans disbursed directly to your M-Pesa account.</p>
+        </div>
+
+        <p class="terms-notice">
+            By submitting you confirm that you accept the
+            <a href="#">Terms and Conditions</a>
+            and
+            <a href="#">Privacy Policy</a>.
+        </p>
+    </div>
+
+    <!-- PWA Install Button -->
+    <button id="installButton" style="display: none;">
+        <i class="fas fa-download"></i> Install App to Get Faster Access
+    </button>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/privacy">Privacy</a>
+            <a href="/terms">Terms</a>
+            <a href="/contact">Contact</a>
+        </div>
+        <p>&copy; 2025 Mkopo Rahisi. Licensed by CBK.</p>
+    </footer>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Show toast message
+            function showToast(message, isError = true) {
+                const toast = document.getElementById('toast');
+                toast.innerHTML = `<i class="fas fa-${isError ? 'exclamation-circle' : 'check-circle'}"></i> ${message}`;
+                toast.style.backgroundColor = isError ? 'var(--danger)' : 'var(--success)';
+                toast.classList.add("show");
+                setTimeout(() => toast.classList.remove("show"), 3000);
+            }
+
+            // Handle phone number input formatting
+            document.getElementById('refPhone').addEventListener('input', (e) => {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.startsWith('0')) {
+                    value = value.substring(0, 10);
+                } else {
+                    value = value.substring(0, 9);
+                }
+                e.target.value = value;
+            });
+
+            // Handle form submission
+            document.getElementById('eligibilityForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const form = e.target;
+                const submitBtn = document.getElementById('submitBtn');
+                const btnText = submitBtn.querySelector('.btn-text');
+                const spinner = submitBtn.querySelector('.btn-spinner');
+                
+                let refPhone = document.getElementById('refPhone').value.trim();
+
+// Normalize the phone number
+if (refPhone.startsWith('07')) {
+    refPhone = refPhone.slice(1); // Converts 07XXXXXXXX to 7XXXXXXXX
+} else if (refPhone.startsWith('01')) {
+    refPhone = refPhone.slice(1); // Converts 01XXXXXXXX to 1XXXXXXXX
+}
+
+// Validate the normalized number
+if (!/^(7|1)[0-9]{8}$/.test(refPhone)) {
+    showToast("Please enter a valid referee phone number (e.g. 07XXXXXXXX, 7XXXXXXXX, 01XXXXXXXX, or 1XXXXXXXX)");
+    return;
+}
+
+
+
+// Now you can use normalizedPhone which will be either 7XXXXXXXX or 1XXXXXXXX
+
+                if (form.checkValidity()) {
+                    btnText.textContent = 'Processing...';
+                    spinner.style.display = 'inline-block';
+                    submitBtn.disabled = true;
+                    
+                    // Simulate processing delay
+                    setTimeout(() => {
+                        // Store form data in sessionStorage
+                        const formData = {
+                            education: document.getElementById('education').value,
+                            employment: document.getElementById('employment').value,
+                            income: document.getElementById('income').value,
+                            loanPurpose: document.getElementById('loanPurpose').value,
+                            referee: {
+                                name: document.getElementById('refName').value,
+                                phone: `254${refPhone.replace(/^0/, '')}`,
+                                relationship: document.getElementById('relationship').value
+                            },
+                            submittedAt: new Date().toISOString()
+                        };
+                        
+                        sessionStorage.setItem('eligibilityData', JSON.stringify(formData));
+                        
+                        // Redirect to loan approval page
+                        window.location.href = 'loanapproval.html';
+                    }, 1000);
+                }
+            });
+
+            // PWA Installation Code (simplified)
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', () => {
+                    navigator.serviceWorker.register('/sw.js').catch(err => {
+                        console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                const installButton = document.getElementById('installButton');
+                
+                if (!window.matchMedia('(display-mode: standalone)').matches) {
+                    installButton.style.display = 'flex';
+                    setTimeout(() => installButton.classList.add('show'), 500);
+                    
+                    installButton.addEventListener('click', () => {
+                        e.prompt();
+                        installButton.style.display = 'none';
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

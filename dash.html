@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="description" content="Track your Mkopo Rahisi loan application status. Fast approval, flexible repayment. Check your dashboard now!">
+    <link rel="icon" type="image/png" href="IMG-20250323-WA0008.png" />
+    <title>Loan Dashboard - Mkopo Rahisi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mkopo Rahisi">
+    <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+    <meta name="theme-color" content="#2563eb">
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --light: #f8fafc;
+            --dark: #1e293b;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --border-radius: 10px;
+            --box-shadow: 0 6px 12px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--dark);
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-banner {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 0.7rem 0;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header-banner::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            animation: pulse 6s infinite linear;
+        }
+
+        @keyframes pulse {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 1rem;
+            box-shadow: var(--box-shadow);
+        }
+
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .logo i {
+            color: var(--accent);
+            font-size: 1.2rem;
+        }
+
+        .logout-btn {
+            background: linear-gradient(135deg, var(--secondary) 0%, #0ea5e9 100%);
+            border: none;
+            padding: 0.7rem 1.2rem;
+            border-radius: var(--border-radius);
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2), 0 2px 4px -1px rgba(16, 185, 129, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logout-btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 45%,
+                rgba(255, 255, 255, 0.3) 48%,
+                rgba(255, 255, 255, 0) 52%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%) rotate(30deg); }
+            100% { transform: translateX(100%) rotate(30deg); }
+        }
+
+        .logout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px -3px rgba(16, 185, 129, 0.3), 0 4px 6px -2px rgba(16, 185, 129, 0.2);
+        }
+
+        .logout-btn i {
+            font-size: 0.85rem;
+        }
+
+        .dashboard {
+            max-width: 500px;
+            margin: 1rem auto;
+            padding: 1.5rem;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            flex: 1;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-message {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-bottom: 1.5rem;
+        }
+
+        .loan-box {
+            background: #f0f5ff;
+            border-left: 3px solid var(--primary);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            margin: 1.5rem 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .loan-box:before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 80px;
+            height: 80px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="%232563eb" opacity="0.05"><path d="M50 0c27.6 0 50 22.4 50 50s-22.4 50-50 50S0 77.6 0 50 22.4 0 50 0zm0 10c-22.1 0-40 17.9-40 40s17.9 40 40 40 40-17.9 40-40-17.9-40-40-40zm0 20c11 0 20 9 20 20s-9 20-20 20-20-9-20-20 9-20 20-20z"/></svg>');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transform: translate(20px, -20px);
+        }
+
+        .loan-info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            text-align: left;
+        }
+
+        .info-item {
+            background: white;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            transition: var(--transition);
+        }
+
+        .info-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 0.3rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .btn {
+            margin-top: 1.2rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::after {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(
+                to bottom right,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 45%,
+                rgba(255, 255, 255, 0.3) 48%,
+                rgba(255, 255, 255, 0) 52%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: rotate(30deg);
+            animation: shine 3s infinite linear;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 12px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .btn i {
+            font-size: 0.95rem;
+        }
+
+        .trust-badges {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            flex-wrap: wrap;
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.85rem;
+            background: white;
+            padding: 0.7rem 1rem;
+            border-radius: 50px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .trust-badge i {
+            color: var(--success);
+            font-size: 1rem;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: auto;
+            color: white;
+            font-size: 0.85rem;
+            padding: 1.2rem 0;
+            background: var(--dark);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 0.8rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            font-size: 0.85rem;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .copyright {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.3rem 0.7rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .status-processing {
+            background-color: #fffaf0;
+            color: var(--warning);
+            border: 1px solid #fed7aa;
+        }
+
+        .status-approved {
+            background-color: #f0fff4;
+            color: var(--success);
+            border: 1px solid #9ae6b4;
+        }
+
+        /* PWA Install Button */
+        #installButton {
+            position: fixed;
+            bottom: 70px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 20px rgba(37, 99, 235, 0.3);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            z-index: 999;
+            width: auto;
+            min-width: 240px;
+            white-space: nowrap;
+            transition: transform 0.3s ease;
+            animation: pulse-blue 2s infinite;
+        }
+
+        #installButton.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #installButton i {
+            font-size: 1rem;
+        }
+
+        @keyframes pulse-blue {
+            0% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(37, 99, 235, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(37, 99, 235, 0); }
+        }
+
+        @media (max-width: 480px) {
+            .dashboard {
+                padding: 1.2rem;
+                margin: 0.5rem;
+            }
+
+            .loan-box {
+                padding: 1.2rem;
+            }
+
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .welcome-message {
+                font-size: 0.9rem;
+            }
+
+            .btn {
+                font-size: 0.9rem;
+                padding: 0.9rem;
+            }
+
+            #installButton {
+                bottom: 60px;
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                min-width: 90%;
+                max-width: 280px;
+            }
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: none;
+            width: 40px;
+            height: 40px;
+            margin: 20px auto;
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-banner">
+        Fast and secure loan processing • 100% online application
+    </div>
+
+    <nav class="navbar">
+        <div class="logo">
+            <i class="fas fa-hand-holding-usd"></i>
+            <span>Mkopo Rahisi</span>
+        </div>
+        <button class="logout-btn" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </button>
+    </nav>
+
+    <div class="dashboard">
+        <div class="spinner" id="loadingSpinner"></div>
+        
+        <h1 id="welcomeMessage">Welcome, Customer 👋</h1>
+        <p class="welcome-message">Your loan application dashboard</p>
+
+        <div class="loan-box">
+            <p>Your loan application has been received</p>
+            <div id="status" class="status-badge status-processing">Processing</div>
+
+            <div class="loan-info">
+                <div class="info-item">
+                    <div class="info-label">Expected Disbursement</div>
+                    <div class="info-value" id="dueDate">--/--/----</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Application Date</div>
+                    <div class="info-value" id="applicationDate">Today</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Reference Number</div>
+                    <div class="info-value">MRN-<span id="refNumber">XXXXXX</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="trust-badges">
+            <div class="trust-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Secure & Encrypted</span>
+            </div>
+            <div class="trust-badge">
+                <i class="fas fa-headset"></i>
+                <span>24/7 Customer Support</span>
+            </div>
+            <div class="trust-badge">
+                <i class="fas fa-badge-check"></i>
+                <span>Licensed by CBK</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-links">
+            <a href="/how-it-works">How It Works</a>
+            <a href="/calculator">Loan Calculator</a>
+            <a href="/faqs">FAQs</a>
+            <a href="/terms">Terms & Conditions</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/contact">Contact Us</a>
+        </div>
+        <div class="copyright">
+            © 2025 Mkopo Rahisi. Licensed by CBK.
+        </div>
+    </footer>
+
+    <!-- PWA Install Button -->
+    <button id="installButton" style="display: none;">
+        <i class="fas fa-download"></i> Install App
+    </button>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCASu52RKh0cUP74lNVONDxkH0IKC7B9Ak",
+            authDomain: "mkopo-rahisi-2dee5.firebaseapp.com",
+            databaseURL: "https://mkopo-rahisi-2dee5-default-rtdb.firebaseio.com",
+            projectId: "mkopo-rahisi-2dee5",
+            storageBucket: "mkopo-rahisi-2dee5.appspot.com",
+            messagingSenderId: "463971994215",
+            appId: "1:463971994215:web:2d3ef1001cee2b201be2c2",
+            measurementId: "G-BRKFJJR3BM"
+        };
+
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+        const analytics = firebase.analytics();
+
+        // DOM elements
+        const loadingSpinner = document.getElementById('loadingSpinner');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const dueDateElement = document.getElementById('dueDate');
+        const statusElement = document.getElementById('status');
+        const refNumberElement = document.getElementById('refNumber');
+        const applicationDateElement = document.getElementById('applicationDate');
+
+        // Show loading spinner
+        function showLoading() {
+            loadingSpinner.style.display = 'block';
+        }
+
+        // Hide loading spinner
+        function hideLoading() {
+            loadingSpinner.style.display = 'none';
+        }
+
+        // Check if user is logged in
+        auth.onAuthStateChanged((user) => {
+            console.log("Auth state changed:", user);
+            if (!user) {
+                console.log("No user, redirecting to login");
+                window.location.href = 'login.html';
+            } else {
+                console.log("User logged in:", user);
+                analytics.logEvent('dashboard_viewed');
+                loadUserData(user);
+            }
+        });
+
+        // Register Service Worker for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                registerServiceWorker();
+            });
+        }
+
+        async function registerServiceWorker() {
+            try {
+                const registration = await navigator.serviceWorker.register('/sw.js');
+                console.log('ServiceWorker registration successful');
+
+                // Handle PWA install prompt
+                window.addEventListener('beforeinstallprompt', (e) => {
+                    e.preventDefault();
+                    const installButton = document.getElementById('installButton');
+                    
+                    // Only show the button if not already installed
+                    if (!window.matchMedia('(display-mode: standalone)').matches) {
+                        installButton.style.display = 'flex';
+                        setTimeout(() => installButton.classList.add('show'), 500);
+                        
+                        installButton.addEventListener('click', () => {
+                            e.prompt();
+                            installButton.style.display = 'none';
+                        });
+                        
+                        e.userChoice.then((choiceResult) => {
+                            if (choiceResult.outcome === 'accepted') {
+                                console.log('User accepted install prompt');
+                                analytics.logEvent('pwa_installed');
+                            } else {
+                                console.log('User dismissed install prompt');
+                            }
+                        });
+                    }
+                });
+            } catch (err) {
+                console.log('ServiceWorker registration failed: ', err);
+            }
+        }
+
+        // Check if app is launched as PWA
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA was installed');
+            const installButton = document.getElementById('installButton');
+            if (installButton) {
+                installButton.style.display = 'none';
+            }
+        });
+
+        function logout() {
+            showLoading();
+            auth.signOut().then(() => {
+                window.location.href = 'login.html';
+            }).catch((error) => {
+                console.error("Logout error:", error);
+                hideLoading();
+                alert("Logout failed. Please try again.");
+            });
+        }
+
+        function loadUserData(user) {
+            showLoading();
+            
+            // Get the user's UID
+            const userId = user.uid;
+            
+            // Fetch the user's data from the database
+            const userRef = db.ref('users/' + userId);
+            
+            userRef.once('value').then((snapshot) => {
+                hideLoading();
+                
+                if (snapshot.exists()) {
+                    const userData = snapshot.val();
+                    console.log("User data:", userData);
+                    
+                    // Update the UI with the retrieved data
+                    const displayName = user.displayName || userData.name || 'Customer';
+                    welcomeMessage.textContent = `Welcome, ${displayName} 👋`;
+                    
+                    // Handle loan data (assuming it's stored under 'loan' node)
+                    if (userData.loan) {
+                        const loanData = userData.loan;
+                        
+                        // Due date (fallback to default if not set)
+                        const dueDate = loanData.dueDate || 'in 48 hrs';
+                        dueDateElement.textContent = dueDate;
+                        
+                        // Status
+                        const status = loanData.status || 'Processing';
+                        statusElement.textContent = status;
+                        
+                        // Update status badge style
+                        if (status.toLowerCase() === "approved") {
+                            statusElement.classList.remove("status-processing");
+                            statusElement.classList.add("status-approved");
+                        }
+                        
+                        // Reference number (use stored or generate random)
+                        const refNumber = loanData.refNumber || Math.floor(100000 + Math.random() * 900000);
+                        refNumberElement.textContent = refNumber;
+                    } else {
+                        // Default values if no loan data exists
+                        dueDateElement.textContent = 'in 48 hrs';
+                        statusElement.textContent = 'Processing';
+                        refNumberElement.textContent = Math.floor(100000 + Math.random() * 900000);
+                    }
+                    
+                    // Set application date (use stored or current date)
+                    const applicationDate = userData.applicationDate || new Date().toISOString();
+                    const formattedDate = new Date(applicationDate).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                    applicationDateElement.textContent = formattedDate;
+                    
+                } else {
+                    console.log("No user data found, using default values");
+                    // Set default values if no data exists
+                    welcomeMessage.textContent = `Welcome, ${user.displayName || 'Customer'} 👋`;
+                    dueDateElement.textContent = 'in 48 hrs';
+                    statusElement.textContent = 'Processing';
+                    refNumberElement.textContent = Math.floor(100000 + Math.random() * 900000);
+                    applicationDateElement.textContent = new Date().toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'short', 
+                        day: 'numeric' 
+                    });
+                }
+            }).catch((error) => {
+                hideLoading();
+                console.error("Error retrieving data from database:", error);
+                alert("Error loading your data. Please try again later.");
+            });
+        }
+    </script>
+</body>
+</html>
