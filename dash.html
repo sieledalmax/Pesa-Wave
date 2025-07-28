@@ -536,193 +536,148 @@
     </button>
 
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCASu52RKh0cUP74lNVONDxkH0IKC7B9Ak",
-            authDomain: "mkopo-rahisi-2dee5.firebaseapp.com",
-            databaseURL: "https://mkopo-rahisi-2dee5-default-rtdb.firebaseio.com",
-            projectId: "mkopo-rahisi-2dee5",
-            storageBucket: "mkopo-rahisi-2dee5.appspot.com",
-            messagingSenderId: "463971994215",
-            appId: "1:463971994215:web:2d3ef1001cee2b201be2c2",
-            measurementId: "G-BRKFJJR3BM"
-        };
+    // Firebase configuration
+    const firebaseConfig = {
+        apiKey: "AIzaSyCASu52RKh0cUP74lNVONDxkH0IKC7B9Ak",
+        authDomain: "mkopo-rahisi-2dee5.firebaseapp.com",
+        databaseURL: "https://mkopo-rahisi-2dee5-default-rtdb.firebaseio.com",
+        projectId: "mkopo-rahisi-2dee5",
+        storageBucket: "mkopo-rahisi-2dee5.appspot.com",
+        messagingSenderId: "463971994215",
+        appId: "1:463971994215:web:2d3ef1001cee2b201be2c2",
+        measurementId: "G-BRKFJJR3BM"
+    };
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
-        const analytics = firebase.analytics();
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const analytics = firebase.analytics();
 
-        // DOM elements
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const dueDateElement = document.getElementById('dueDate');
-        const statusElement = document.getElementById('status');
-        const refNumberElement = document.getElementById('refNumber');
-        const applicationDateElement = document.getElementById('applicationDate');
+    // DOM elements
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    const dueDateElement = document.getElementById('dueDate');
+    const statusElement = document.getElementById('status');
+    const refNumberElement = document.getElementById('refNumber');
+    const applicationDateElement = document.getElementById('applicationDate');
 
-        // Show loading spinner
-        function showLoading() {
-            loadingSpinner.style.display = 'block';
+    // Show loading spinner
+    function showLoading() {
+        loadingSpinner.style.display = 'block';
+    }
+
+    // Hide loading spinner
+    function hideLoading() {
+        loadingSpinner.style.display = 'none';
+    }
+
+    // Check if user is logged in
+    auth.onAuthStateChanged((user) => {
+        console.log("Auth state changed:", user);
+        if (!user) {
+            console.log("No user, redirecting to login");
+            window.location.href = 'login.html';
+        } else {
+            console.log("User logged in:", user);
+            analytics.logEvent('dashboard_viewed');
+            loadUserData(user);
         }
+    });
 
-        // Hide loading spinner
-        function hideLoading() {
-            loadingSpinner.style.display = 'none';
-        }
+    // Load user UI without Firebase fetch
+    function loadUserData(user) {
+    showLoading();
 
-        // Check if user is logged in
-        auth.onAuthStateChanged((user) => {
-            console.log("Auth state changed:", user);
-            if (!user) {
-                console.log("No user, redirecting to login");
-                window.location.href = 'login.html';
-            } else {
-                console.log("User logged in:", user);
-                analytics.logEvent('dashboard_viewed');
-                loadUserData(user);
-            }
+    setTimeout(() => {
+    hideLoading();
+
+    welcomeMessage.textContent = "Welcome 👋";
+
+    // Set status
+    statusElement.textContent = 'Approved';
+    statusElement.classList.remove("status-processing");
+    statusElement.classList.add("status-approved");
+
+    // Format today's date
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+
+    // Use formatted date for both expected and application dates
+    dueDateElement.textContent = formattedDate;
+    applicationDateElement.textContent = formattedDate;
+
+    // Generate clean MRN reference
+    const refNumber = Math.random().toString(36).substring(2, 8).toUpperCase();
+    refNumberElement.textContent = refNumber;
+}, 2000);
+}
+
+    // Logout function
+    function logout() {
+        showLoading();
+        auth.signOut().then(() => {
+            window.location.href = 'login.html';
+        }).catch((error) => {
+            console.error("Logout error:", error);
+            hideLoading();
+            alert("Logout failed. Please try again.");
         });
+    }
 
-        // Register Service Worker for PWA
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                registerServiceWorker();
-            });
-        }
-
-        async function registerServiceWorker() {
-            try {
-                const registration = await navigator.serviceWorker.register('/sw.js');
-                console.log('ServiceWorker registration successful');
-
-                // Handle PWA install prompt
-                window.addEventListener('beforeinstallprompt', (e) => {
-                    e.preventDefault();
-                    const installButton = document.getElementById('installButton');
-                    
-                    // Only show the button if not already installed
-                    if (!window.matchMedia('(display-mode: standalone)').matches) {
-                        installButton.style.display = 'flex';
-                        setTimeout(() => installButton.classList.add('show'), 500);
-                        
-                        installButton.addEventListener('click', () => {
-                            e.prompt();
-                            installButton.style.display = 'none';
-                        });
-                        
-                        e.userChoice.then((choiceResult) => {
-                            if (choiceResult.outcome === 'accepted') {
-                                console.log('User accepted install prompt');
-                                analytics.logEvent('pwa_installed');
-                            } else {
-                                console.log('User dismissed install prompt');
-                            }
-                        });
-                    }
-                });
-            } catch (err) {
-                console.log('ServiceWorker registration failed: ', err);
-            }
-        }
-
-        // Check if app is launched as PWA
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA was installed');
-            const installButton = document.getElementById('installButton');
-            if (installButton) {
-                installButton.style.display = 'none';
-            }
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            registerServiceWorker();
         });
+    }
 
-        function logout() {
-            showLoading();
-            auth.signOut().then(() => {
-                window.location.href = 'login.html';
-            }).catch((error) => {
-                console.error("Logout error:", error);
-                hideLoading();
-                alert("Logout failed. Please try again.");
-            });
-        }
+    async function registerServiceWorker() {
+        try {
+            const registration = await navigator.serviceWorker.register('/sw.js');
+            console.log('ServiceWorker registration successful');
 
-        function loadUserData(user) {
-            showLoading();
-            
-            // Get the user's UID
-            const userId = user.uid;
-            
-            // Fetch the user's data from the database
-            const userRef = db.ref('users/' + userId);
-            
-            userRef.once('value').then((snapshot) => {
-                hideLoading();
-                
-                if (snapshot.exists()) {
-                    const userData = snapshot.val();
-                    console.log("User data:", userData);
-                    
-                    // Update the UI with the retrieved data
-                    const displayName = user.displayName || userData.name || 'Customer';
-                    welcomeMessage.textContent = `Welcome, ${displayName} 👋`;
-                    
-                    // Handle loan data (assuming it's stored under 'loan' node)
-                    if (userData.loan) {
-                        const loanData = userData.loan;
-                        
-                        // Due date (fallback to default if not set)
-                        const dueDate = loanData.dueDate || 'in 48 hrs';
-                        dueDateElement.textContent = dueDate;
-                        
-                        // Status
-                        const status = loanData.status || 'Processing';
-                        statusElement.textContent = status;
-                        
-                        // Update status badge style
-                        if (status.toLowerCase() === "approved") {
-                            statusElement.classList.remove("status-processing");
-                            statusElement.classList.add("status-approved");
-                        }
-                        
-                        // Reference number (use stored or generate random)
-                        const refNumber = loanData.refNumber || Math.floor(100000 + Math.random() * 900000);
-                        refNumberElement.textContent = refNumber;
-                    } else {
-                        // Default values if no loan data exists
-                        dueDateElement.textContent = 'in 48 hrs';
-                        statusElement.textContent = 'Processing';
-                        refNumberElement.textContent = Math.floor(100000 + Math.random() * 900000);
-                    }
-                    
-                    // Set application date (use stored or current date)
-                    const applicationDate = userData.applicationDate || new Date().toISOString();
-                    const formattedDate = new Date(applicationDate).toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
+            // Handle PWA install prompt
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                const installButton = document.getElementById('installButton');
+
+                if (!window.matchMedia('(display-mode: standalone)').matches) {
+                    installButton.style.display = 'flex';
+                    setTimeout(() => installButton.classList.add('show'), 500);
+
+                    installButton.addEventListener('click', () => {
+                        e.prompt();
+                        installButton.style.display = 'none';
                     });
-                    applicationDateElement.textContent = formattedDate;
-                    
-                } else {
-                    console.log("No user data found, using default values");
-                    // Set default values if no data exists
-                    welcomeMessage.textContent = `Welcome, ${user.displayName || 'Customer'} 👋`;
-                    dueDateElement.textContent = 'in 48 hrs';
-                    statusElement.textContent = 'Processing';
-                    refNumberElement.textContent = Math.floor(100000 + Math.random() * 900000);
-                    applicationDateElement.textContent = new Date().toLocaleDateString('en-US', { 
-                        year: 'numeric', 
-                        month: 'short', 
-                        day: 'numeric' 
+
+                    e.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === 'accepted') {
+                            console.log('User accepted install prompt');
+                            analytics.logEvent('pwa_installed');
+                        } else {
+                            console.log('User dismissed install prompt');
+                        }
                     });
                 }
-            }).catch((error) => {
-                hideLoading();
-                console.error("Error retrieving data from database:", error);
-                alert("Error loading your data. Please try again later.");
             });
+        } catch (err) {
+            console.log('ServiceWorker registration failed: ', err);
         }
-    </script>
+    }
+
+    // Hide install button after installation
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA was installed');
+        const installButton = document.getElementById('installButton');
+        if (installButton) {
+            installButton.style.display = 'none';
+        }
+    });
+</script>
+
 </body>
 </html>

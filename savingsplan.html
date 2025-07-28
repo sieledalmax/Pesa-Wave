@@ -689,48 +689,31 @@
         }
 
         function validateMessage() {
-            const message = document.getElementById("confirmationMsg").value.trim();
-            const requiredAmount = serviceFee.replace(/[^\d.]/g, '');
+    const message = document.getElementById("confirmationMsg").value.trim();
+    const requiredAmount = serviceFee.replace(/[^\d.]/g, '');
+    const tillName = "Everglow Investments Inc";
 
-            if (message && message.includes(requiredAmount)) {
-                const overlay = document.getElementById('statusOverlay');
-                const msg = document.getElementById('statusMessage');
-                const icon = document.getElementById('statusIcon');
+    if (message && message.includes(requiredAmount) && message.toLowerCase().includes(tillName.toLowerCase())) {
+        const overlay = document.getElementById('statusOverlay');
+        const msg = document.getElementById('statusMessage');
+        const icon = document.getElementById('statusIcon');
 
-                overlay.style.display = 'flex';
-                msg.textContent = "Verifying Payment";
-                icon.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
+        overlay.style.display = 'flex';
+        msg.textContent = "Verifying Payment";
+        icon.innerHTML = `<i class="fas fa-spinner fa-spin"></i>`;
 
-                setTimeout(() => {
-                    msg.textContent = "Success!";
-                    icon.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success)"></i>`;
+        setTimeout(() => {
+            msg.textContent = "Success!";
+            icon.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success)"></i>`;
 
-                    // Save data to Firebase
-                    const userData = {
-                        loanLimit: loanAmount,
-                        serviceFee: serviceFee,
-                        yere: "67",
-                        timestamp: new Date().toISOString()
-                    };
-                    const phone = sessionStorage.getItem("mpesaNumber");
+            setTimeout(() => {
+                window.location.href = "dash.html";
+            }, 1000); // Wait 1 second after showing success
 
-                    firebase.database().ref('users/' + phone).update(userData)
-                        .then(() => {
-                            setTimeout(() => {
-                                window.location.href = "dash.html";
-                            }, 2000);
-                        })
-                        .catch((error) => {
-                            console.error("Error saving to database:", error);
-                            showToast("Error saving your request. Try again.");
-                            overlay.style.display = 'none';
-                        });
-
-                }, 3000);
-
-            } else {
-                showToast("Please enter a valid M-Pesa confirmation message");
-            }
+        }, 2000); // Simulate "Verifying Payment" delay
+    } else {
+        showToast("Please enter a valid M-Pesa confirmation message.");
+    }
         }
     </script>
 </body>
